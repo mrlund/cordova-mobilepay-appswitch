@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    id="cordova-mobilepay-appswitch"
+    version="1.0.0">
+    <name>Cordova MobilePay AppSwitch Plugin</name>
+    <description>Cordova plugin for the Danske Bank Mobilepay AppSwitcher, to enable cordova-based apps to use the app switcher SDK.</description>
+    <license>MIT</license>
+    <keywords>mobilepay,cordova,appswitcher</keywords>
+    <repo>https://github.com/mrlund/cordova-mobilepay-appswitch.git</repo>
+    <issue>https://github.com/mrlund/cordova-mobilepay-appswitch/issues</issue>
+
+    <!-- android -->
+    <platform name="android">
+        <preference name="MERCHANT_ID" />
+      <js-module src="www/plugin.js" name="plugin">
+        <runs/>
+
+        <!-- This is the window variable name you want, like window.MyCordovaPlugin -->
+        <clobbers target="CordovaMobilePayAppSwitch" />
+      </js-module>
+      <config-file target="res/xml/config.xml" parent="/*">
+        <feature name="CordovaMobilePayAppSwitch">
+          <param name="android-package" value="com.eqt1.cordovaMobilePayAppSwitch.CordovaMobilePayAppSwitch" />
+          <param name="onload" value="true" />
+        </feature>
+      </config-file>
+
+        
+        <config-file target="res/values/strings.xml" parent="/*">
+            <string name="merchantId">$MERCHANT_ID</string>
+        </config-file>      
+
+
+        <source-file src="src/android/com/eqt1/cordovaMobilePayAppSwitch/CordovaMobilePayAppSwitch.java" target-dir="src/com/eqt1/cordovaMobilePayAppSwitch/" />
+        <source-file src="src/android/mobilepay-appswitch-1.8.0.jar" target-dir="libs" framework="true"/>
+    </platform>
+
+    <!-- ios -->
+    <platform name="ios">
+        <preference name="URL_IDENTIFIER" />
+        <preference name="URL_SCHEME" />
+        <preference name="MERCHANT_ID" />
+        <js-module src="www/plugin.js" name="plugin">
+            <runs/>
+            <clobbers target="CordovaMobilePayAppSwitch" />
+        </js-module>
+        <config-file target="config.xml" parent="/*">
+            <feature name="CordovaMobilePayAppSwitch">
+                <param name="ios-package" value="CordovaMobilePayAppSwitch" onload="true" />
+                <preference name="urlScheme" value="$URL_SCHEME"/>
+                <preference name="merchantId" value="$MERCHANT_ID"/>
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/CordovaMobilePayAppSwitch.h" />
+        <source-file src="src/ios/CordovaMobilePayAppSwitch.m" />
+
+        <source-file src="src/ios/MobilePayManager/libMobilePayManager1.8.0.a" framework="true" />
+        <header-file src="src/ios/MobilePayManager/MobilePayManager.h" />
+
+        <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+        <array>
+            <dict>
+                <key>CFBundleURLName</key>
+                <string>$URL_IDENTIFIER</string>
+                <key>CFBundleURLSchemes</key>
+                <array>
+                    <string>$URL_SCHEME</string>
+                </array>
+            </dict>
+        </array>
+        </config-file>
+        <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
+            <array>mobilepay</array>
+        </config-file>
+    </platform>
+</plugin>
