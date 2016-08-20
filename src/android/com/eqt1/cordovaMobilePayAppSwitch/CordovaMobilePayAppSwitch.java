@@ -45,6 +45,7 @@ public class CordovaMobilePayAppSwitch extends CordovaPlugin {
   public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if(action.equals("startPayment")) {
       String amount = args.getString(0);
+      String orderId = args.getString(1);
       this.callbackContext = callbackContext;
 
         // Check if the MobilePay app is installed on the device.
@@ -54,7 +55,7 @@ public class CordovaMobilePayAppSwitch extends CordovaPlugin {
           // MobilePay is present on the system. Create a Payment object.
           Payment payment = new Payment();
           payment.setProductPrice(new BigDecimal(amount));
-          payment.setOrderId("86715c57-8840-4a6f-af5f-07ee89107ece");
+          payment.setOrderId(orderId);
 
           // Create a payment Intent using the Payment object from above.
           Intent paymentIntent = MobilePay.getInstance().createPaymentIntent(payment);
@@ -89,24 +90,56 @@ public class CordovaMobilePayAppSwitch extends CordovaPlugin {
         @Override
         public void onSuccess(SuccessResult result) {
           // The payment succeeded - you can deliver the product.
-          Log.d(TAG, result.getTransactionId());
-          final PluginResult successResult = new PluginResult(PluginResult.Status.OK, result.getTransactionId());
+          JSONObject jResult = new JSONObject();
+          try {
+            jResult.put("transactionId", result.getTransactionId());
+            jResult.put("orderId", result.getOrderId());
+            jResult.put("amountWithdrawnFromCard", result.getAmountWithdrawnFromCard());
+          }
+          catch (JSONException e){
+            Log.d(TAG, e.toString());
+          }
+
+          Log.d(TAG, jResult.toString());
+          final PluginResult successResult = new PluginResult(PluginResult.Status.OK, jResult);
           that.callbackContext.sendPluginResult(successResult);          
         }
         @Override
         public void onFailure(FailureResult result) {
-          Log.d(TAG, result.getErrorMessage());
-          final PluginResult failResult = new PluginResult(PluginResult.Status.ERROR, result.getErrorMessage());
+          JSONObject jResult = new JSONObject();
+          try {
+            jResult.put("errorCode", result.getErrorCode());
+            jResult.put("errorMessage", result.getErrorMessage());
+          }
+          catch (JSONException e){
+            Log.d(TAG, e.toString());
+          }
+          
+          
+          Log.d(TAG, jResult.toString());
+          final PluginResult failResult = new PluginResult(PluginResult.Status.ERROR, jResult);
           that.callbackContext.sendPluginResult(failResult);          
           // The payment failed - show an appropriate error message to the user. Consult the MobilePay class documentation for possible error codes.
         }
         @Override
         public void onCancel() {
           Log.d(TAG, "Cancelled");
+
+          JSONObject jResult = new JSONObject();
+          try {
+            jResult.put("errorMessage", "Cancelled");
+          }
+          catch (JSONException e){
+            Log.d(TAG, e.toString());
+          }
+          
+         final PluginResult cancelResult = new PluginResult(PluginResult.Status.ERROR, jResult);
+          that.callbackContext.sendPluginResult(cancelResult);             
           // The payment was cancelled.
         }
       });
     }
-  }  
+  }
+
 
 }

@@ -26,8 +26,9 @@ NSString *myCallbackId;
 
     myCallbackId = command.callbackId;
     NSString* amountStr = [command.arguments objectAtIndex:0];
+    NSString* orderId = [command.arguments objectAtIndex:1];
     float fAmount = [amountStr floatValue];
-    MobilePayPayment *payment = [[MobilePayPayment alloc]initWithOrderId:@"123456" productPrice:fAmount];
+    MobilePayPayment *payment = [[MobilePayPayment alloc]initWithOrderId:orderId productPrice:fAmount];
         //No need to start a payment if one or more parameters are missing
         if (payment && (payment.orderId.length > 0) && (payment.productPrice >= 0)) {
 
@@ -58,18 +59,35 @@ NSString *myCallbackId;
         NSString *orderId = mobilePaySuccessfulPayment.orderId;
         NSString *transactionId = mobilePaySuccessfulPayment.transactionId;
         NSString *amountWithdrawnFromCard = [NSString stringWithFormat:@"%f",mobilePaySuccessfulPayment.amountWithdrawnFromCard];
-        NSLog(@"MobilePay purchase succeeded: Your have now paid for order with id '%@' and MobilePay transaction id '%@' and the amount withdrawn from the card is: '%@'", orderId, transactionId,amountWithdrawnFromCard);
+
+
+        NSDictionary *jsonResultDict = [NSDictionary dictionaryWithObjectsAndKeys:
+        orderId, @"orderId",
+        transactionId, @"transactionId",
+        amountWithdrawnFromCard, @"amountWithdrawnFromCard",
+        nil];
+
+        NSData *jsonResultData = [NSJSONSerialization dataWithJSONObject:jsonResultDict options:NSJSONWritingPrettyPrinted error: nil];
+        NSString *jsonResultString = [[NSString alloc] initWithData:jsonResultData encoding:NSUTF8StringEncoding];
+        NSLog(@"SuccessResult:\n%@", jsonResultString);
         
-        NSString *resultString = [NSString stringWithFormat:@"Success. Order id '%@', transaction id '%@' for amount '%@' completed succesfully.", orderId, transactionId, amountWithdrawnFromCard];
-        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:resultString];
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:jsonResultDict];
         [self.commandDelegate sendPluginResult:result callbackId:myCallbackId];
 
     } error:^(NSError * _Nonnull error) {
         NSDictionary *dict = error.userInfo;
         NSString *errorMessage = [dict valueForKey:NSLocalizedFailureReasonErrorKey];
-        NSLog(@"MobilePay purchase failed:  Error code '%li' and message '%@'",(long)error.code,errorMessage);
 
-        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Error: '%@'", errorMessage]];
+        NSDictionary *jsonResultDict = [NSDictionary dictionaryWithObjectsAndKeys:
+        [NSNumber numberWithInteger:error.code], @"errorCode",
+        errorMessage, @"errorMessage",
+        nil];
+
+        NSData *jsonResultData = [NSJSONSerialization dataWithJSONObject:jsonResultDict options:NSJSONWritingPrettyPrinted error: nil];
+        NSString *jsonResultString = [[NSString alloc] initWithData:jsonResultData encoding:NSUTF8StringEncoding];
+        NSLog(@"ErrorResult:\n%@", jsonResultString);
+
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:jsonResultDict];
         [self.commandDelegate sendPluginResult:result callbackId:myCallbackId];
 
         //TODO: show an appropriate error message to the user. Check MobilePayManager.h for a complete description of the error codes
@@ -79,9 +97,17 @@ NSString *myCallbackId;
         //    NSLog(@"You must update your MobilePay app");
         //}
     } cancel:^(MobilePayCancelledPayment * _Nullable mobilePayCancelledPayment) {
-        NSLog(@"MobilePay purchase with order id '%@' cancelled by user", mobilePayCancelledPayment.orderId);
+
+        NSDictionary *jsonResultDict = [NSDictionary dictionaryWithObjectsAndKeys:
+        @"Cancelled", @"errorMessage",
+        mobilePayCancelledPayment.orderId, @"orderId",
+        nil];
         
-        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Cancelled by user"];
+        NSData *jsonResultData = [NSJSONSerialization dataWithJSONObject:jsonResultDict options:NSJSONWritingPrettyPrinted error: nil];
+        NSString *jsonResultString = [[NSString alloc] initWithData:jsonResultData encoding:NSUTF8StringEncoding];
+        NSLog(@"CancelledResult:\n%@", jsonResultString);
+
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:jsonResultDict];
         [self.commandDelegate sendPluginResult:result callbackId:myCallbackId];
 
     }];
