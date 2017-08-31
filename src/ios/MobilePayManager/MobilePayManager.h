@@ -322,16 +322,9 @@ DEPRECATED_MSG_ATTRIBUTE("Use setupWithMerchantId:(NSString * __nonnull)merchant
 @property (nonatomic, readonly) NSString * __nonnull signatureVersion;
 
 /**
- *Set the optional Server Callback URL for server-to-server communication in order to receive instant feedback on current transaction. This enables merchants to react accordingly.
- *
- *Max 255 characters and it must be an HTTPS:// endpoint
- *
- *Example:
- *[[MobilePayManager sharedInstance] setServerCallbackUrl:@"https://example.com/appswitchstatus"];
- *
+ * ServerCallbackUrl is deprecated.
  */
-
--(void)setServerCallbackUrl:(NSString * __nonnull)serverCallbackUrl;
+-(void)setServerCallbackUrl:(NSString * __nonnull)serverCallbackUrl DEPRECATED_MSG_ATTRIBUTE("ServerCallbackUrl is deprecated, setting this property will have no effect.");
 
 /**
  * for internal development purpose only

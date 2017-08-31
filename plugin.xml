@@ -2,7 +2,7 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     id="cordova-mobilepay-appswitch"
-    version="1.0.0">
+    version="1.1.0">
     <name>Cordova MobilePay AppSwitch Plugin</name>
     <description>Cordova plugin for the Danske Bank Mobilepay AppSwitcher, to enable cordova-based apps to use the app switcher SDK.</description>
     <license>MIT</license>
@@ -33,7 +33,7 @@
 
 
         <source-file src="src/android/com/eqt1/cordovaMobilePayAppSwitch/CordovaMobilePayAppSwitch.java" target-dir="src/com/eqt1/cordovaMobilePayAppSwitch/" />
-        <source-file src="src/android/mobilepay-appswitch-1.8.0.jar" target-dir="libs" framework="true"/>
+        <source-file src="src/android/mobilepay-appswitch-1.8.1.jar" target-dir="libs" framework="true"/>
     </platform>
 
     <!-- ios -->
@@ -56,7 +56,7 @@
         <header-file src="src/ios/CordovaMobilePayAppSwitch.h" />
         <source-file src="src/ios/CordovaMobilePayAppSwitch.m" />
 
-        <source-file src="src/ios/MobilePayManager/libMobilePayManager1.8.0.a" framework="true" />
+        <source-file src="src/ios/MobilePayManager/libMobilePayManager1.8.1.a" framework="true" />
         <header-file src="src/ios/MobilePayManager/MobilePayManager.h" />
 
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
