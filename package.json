@@ -5,7 +5,7 @@
     "id": "cordova-mobilepay-appswitch",
     "platforms": [
       "android",
-      "ios",
+      "ios"
     ]
   },
   "description": "A cordova plugin for Danske Banks MobilePay AppSwitch"
